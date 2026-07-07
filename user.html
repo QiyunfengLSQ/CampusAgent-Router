@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>用户端 - CampusAgent Router</title>
+  <link rel="icon" href="web/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="web/styles.css">
 </head>
 <body>
   <main class="shell app-shell">
     <nav class="topbar">
       <a class="brand" href="index.html">
-        <span class="brand-mark">CA</span>
+        <span class="brand-mark"><img src="web/logo.svg" alt=""></span>
         <span>用户端</span>
       </a>
       <div class="nav-actions">
@@ -62,14 +63,9 @@
             <span>Route To</span>
             <strong id="routeText">web_search</strong>
           </div>
-          <div class="result-main">
-            <span>Confidence</span>
-            <strong id="confidenceText">0.96</strong>
-          </div>
         </div>
 
         <div class="reason-box" id="reasonText">用户需要获取实时外部信息。</div>
-        <div id="scoreList" class="score-list"></div>
         <section class="execution-panel">
           <div class="execution-head">
             <span>执行结果</span>

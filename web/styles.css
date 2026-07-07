@@ -82,6 +82,12 @@ textarea {
   border-radius: 8px;
 }
 
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 .nav-actions,
 .hero-actions,
 .control-row {
@@ -354,6 +360,12 @@ textarea:focus {
   min-width: 120px;
 }
 
+.compact {
+  min-width: auto;
+  min-height: 36px;
+  padding-inline: 12px;
+}
+
 .result-grid,
 .metric-grid,
 .admin-grid {
@@ -362,7 +374,7 @@ textarea:focus {
 }
 
 .result-grid {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .result-main {
@@ -391,6 +403,10 @@ textarea:focus {
 .score-list {
   display: grid;
   gap: 10px;
+}
+
+.admin-score-list {
+  margin-top: 16px;
 }
 
 .score-row {
@@ -496,8 +512,75 @@ textarea:focus {
   grid-template-columns: 1.1fr 0.9fr;
 }
 
+.monitor-grid {
+  margin-bottom: 14px;
+}
+
 .ops-panel {
   padding: 20px;
+}
+
+.ops-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ops-head h2 {
+  margin-bottom: 0;
+}
+
+.monitor-current {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.monitor-current span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.monitor-current strong {
+  display: block;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.event-log {
+  display: grid;
+  gap: 10px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.event-item {
+  padding: 12px;
+  border: 1px solid rgba(115, 238, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+}
+
+.event-item b {
+  color: var(--cyan);
+}
+
+.event-item span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.event-item p {
+  margin: 6px 0 0;
+  color: var(--text);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .route-item {

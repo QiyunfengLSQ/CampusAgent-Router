@@ -18,6 +18,9 @@ const keywordRules = [
   ["chat", ["聊", "陪我", "累", "迷茫", "鼓励", "怎么办"]]
 ];
 
+const telemetryKey = "campusagent_router_events";
+const maxTelemetryItems = 40;
+
 function normalizeScores(scores) {
   return Object.fromEntries(Object.entries(scores).map(([key, value]) => [key, Number(value)]));
 }
@@ -210,6 +213,33 @@ function renderScores(scores) {
   });
 }
 
+function readTelemetry() {
+  try {
+    return JSON.parse(localStorage.getItem(telemetryKey) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writeTelemetry(items) {
+  localStorage.setItem(telemetryKey, JSON.stringify(items.slice(0, maxTelemetryItems)));
+}
+
+function recordTelemetry(result, text) {
+  const items = readTelemetry();
+  items.unshift({
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    time: new Date().toLocaleString(),
+    text,
+    intent: result.intent,
+    route_to: result.route_to,
+    confidence: Number(result.confidence) || 0,
+    status: result.status || "success",
+    scores: result.scores || {}
+  });
+  writeTelemetry(items);
+}
+
 function renderActions(actions) {
   const root = document.querySelector("#actionList");
   if (!root) return;
@@ -251,11 +281,10 @@ async function runUserRoute() {
   const result = await executeTask(text, context ? context.value : "");
   document.querySelector("#intentText").textContent = result.intent;
   document.querySelector("#routeText").textContent = result.route_to;
-  document.querySelector("#confidenceText").textContent = Number(result.confidence).toFixed(2);
   document.querySelector("#reasonText").textContent = result.reason;
   document.querySelector("#executionStatus").textContent = result.status;
   document.querySelector("#answerText").textContent = result.answer;
-  renderScores(result.scores);
+  recordTelemetry(result, text);
   renderActions(result.actions || []);
 }
 
@@ -285,7 +314,6 @@ function setupUserPage() {
       runUserRoute();
     });
   });
-  runUserRoute();
 }
 
 function setupAdminPage() {
@@ -299,6 +327,56 @@ function setupAdminPage() {
       </div>
     `)
     .join("");
+  setupAdminMonitor();
+}
+
+function renderEventLog(items) {
+  const root = document.querySelector("#eventLog");
+  if (!root) return;
+  if (!items.length) {
+    root.innerHTML = '<div class="event-item"><span>暂无执行记录</span><p>打开用户端执行一次任务后，这里会自动更新。</p></div>';
+    return;
+  }
+  root.innerHTML = items
+    .slice(0, 12)
+    .map((item) => `
+      <div class="event-item">
+        <span>${item.time} · ${item.status}</span>
+        <p><b>${item.intent}</b> -> ${item.route_to} · confidence ${Number(item.confidence).toFixed(2)}</p>
+        <p>${item.text}</p>
+      </div>
+    `)
+    .join("");
+}
+
+function renderAdminMonitor() {
+  const items = readTelemetry();
+  const latest = items[0];
+  const count = document.querySelector("#runCount");
+  const latestIntent = document.querySelector("#latestIntent");
+  const latestRoute = document.querySelector("#latestRoute");
+  const latestQuery = document.querySelector("#latestQuery");
+  if (count) count.textContent = String(items.length);
+  if (latestIntent) latestIntent.textContent = latest ? latest.intent : "-";
+  if (latestRoute) latestRoute.textContent = latest ? latest.route_to : "等待用户端执行任务";
+  if (latestQuery) latestQuery.textContent = latest ? latest.text : "暂无数据";
+  renderScores(latest ? latest.scores : {});
+  renderEventLog(items);
+}
+
+function setupAdminMonitor() {
+  renderAdminMonitor();
+  const clearButton = document.querySelector("#clearMonitorBtn");
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      writeTelemetry([]);
+      renderAdminMonitor();
+    });
+  }
+  window.addEventListener("storage", (event) => {
+    if (event.key === telemetryKey) renderAdminMonitor();
+  });
+  setInterval(renderAdminMonitor, 1000);
 }
 
 setupUserPage();

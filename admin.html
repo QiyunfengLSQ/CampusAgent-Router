@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>管理端 - CampusAgent Router</title>
+  <link rel="icon" href="web/logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="web/styles.css">
 </head>
 <body>
   <main class="shell app-shell">
     <nav class="topbar">
       <a class="brand" href="index.html">
-        <span class="brand-mark">CA</span>
+        <span class="brand-mark"><img src="web/logo.svg" alt=""></span>
         <span>管理端</span>
       </a>
       <div class="nav-actions">
@@ -27,8 +28,26 @@
       <section class="metric-grid">
         <div class="metric-card"><span>Intent Classes</span><strong>7</strong><p>search / rag_qa / summarize / code / reminder / translate / chat</p></div>
         <div class="metric-card"><span>Dataset</span><strong>1260</strong><p>自动生成中文意图样本</p></div>
-        <div class="metric-card"><span>Executor</span><strong>7</strong><p>搜索、提醒、总结、RAG、翻译、代码和聊天执行层</p></div>
-        <div class="metric-card"><span>LLM Mode</span><strong>Optional</strong><p>设置 DEEPSEEK_API_KEY 后启用高质量生成</p></div>
+        <div class="metric-card"><span>Runs Today</span><strong id="runCount">0</strong><p>来自用户端的本地实时执行记录</p></div>
+        <div class="metric-card"><span>Latest Intent</span><strong id="latestIntent">-</strong><p id="latestRoute">等待用户端执行任务</p></div>
+      </section>
+
+      <section class="admin-grid monitor-grid">
+        <div class="ops-panel">
+          <div class="ops-head">
+            <h2>实时路由监控</h2>
+            <button id="clearMonitorBtn" class="secondary-button compact">清空记录</button>
+          </div>
+          <div class="monitor-current">
+            <span>最近请求</span>
+            <strong id="latestQuery">暂无数据</strong>
+          </div>
+          <div id="scoreList" class="score-list admin-score-list"></div>
+        </div>
+        <div class="ops-panel">
+          <h2>执行记录</h2>
+          <div id="eventLog" class="event-log"></div>
+        </div>
       </section>
 
       <section class="admin-grid">

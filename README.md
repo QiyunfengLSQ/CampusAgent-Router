@@ -13,7 +13,8 @@ The repository also includes a static technology-style web interface that can be
 - FastAPI execution service with `/execute`.
 - Static web UI with separated user and admin pages.
 - User page supports local static execution and optional FastAPI + DeepSeek live mode.
-- Admin page shows dataset, model, route table, and run commands.
+- Admin page shows dataset, model, route table, live route telemetry, and run commands.
+- User-facing model scores are hidden; live confidence and score vectors are monitored in the admin page.
 
 ## Intent And Route Mapping
 
@@ -61,8 +62,8 @@ admin.html
 Open these files directly in a browser:
 
 - `index.html`: project entrance.
-- `user.html`: user-side router console.
-- `admin.html`: admin dashboard.
+- `user.html`: user-side execution console.
+- `admin.html`: admin dashboard with live route telemetry.
 
 When FastAPI is not running, the user page still performs practical local actions:
 
@@ -72,6 +73,8 @@ When FastAPI is not running, the user page still performs practical local action
 - `rag_qa`: searches pasted/uploaded local text and returns evidence.
 
 When FastAPI is running on `http://127.0.0.1:8000`, the page calls the real `/execute` API automatically. If `DEEPSEEK_API_KEY` is set, summarize, RAG QA, translate, code, and chat use DeepSeek for stronger answers.
+
+The user page only shows task type, target tool, and execution result. Detailed confidence scores and recent execution records are written to browser local storage and displayed in `admin.html`.
 
 ## Windows Setup
 
