@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>管理端 - CampusAgent Router</title>
+  <link rel="stylesheet" href="web/styles.css">
+</head>
+<body>
+  <main class="shell app-shell">
+    <nav class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">CA</span>
+        <span>管理端</span>
+      </a>
+      <div class="nav-actions">
+        <a class="ghost-link" href="user.html">用户端</a>
+      </div>
+    </nav>
+
+    <section class="admin-layout">
+      <div class="admin-head">
+        <p class="eyebrow">Operations Dashboard</p>
+        <h1>模型、数据和路由能力概览</h1>
+      </div>
+
+      <section class="metric-grid">
+        <div class="metric-card"><span>Intent Classes</span><strong>7</strong><p>search / rag_qa / summarize / code / reminder / translate / chat</p></div>
+        <div class="metric-card"><span>Dataset</span><strong>1260</strong><p>自动生成中文意图样本</p></div>
+        <div class="metric-card"><span>Best Valid Acc</span><strong>1.00</strong><p>最近一次训练结果</p></div>
+        <div class="metric-card"><span>Device</span><strong>CUDA</strong><p>训练脚本自动检测 GPU / CPU</p></div>
+      </section>
+
+      <section class="admin-grid">
+        <div class="ops-panel">
+          <h2>工具路由表</h2>
+          <div id="routeTable" class="route-table"></div>
+        </div>
+        <div class="ops-panel">
+          <h2>运行命令</h2>
+          <pre><code>pip install -r requirements.txt
+python scripts\make_dataset.py
+python scripts\train_model.py
+python scripts\eval_model.py
+python scripts\predict_demo.py
+uvicorn app.main:app --reload</code></pre>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="web/app.js"></script>
+</body>
+</html>
