@@ -10,8 +10,9 @@ The repository also includes a static technology-style web interface that can be
 - Tiny PyTorch Transformer classifier without HuggingFace or pretrained models.
 - Training, evaluation, metrics export, and badcase report.
 - FastAPI inference service with `/health`, `/predict`, and `/route`.
+- FastAPI execution service with `/execute`.
 - Static web UI with separated user and admin pages.
-- User page supports local static demo mode and optional FastAPI live mode.
+- User page supports local static execution and optional FastAPI + DeepSeek live mode.
 - Admin page shows dataset, model, route table, and run commands.
 
 ## Intent And Route Mapping
@@ -63,7 +64,14 @@ Open these files directly in a browser:
 - `user.html`: user-side router console.
 - `admin.html`: admin dashboard.
 
-When FastAPI is not running, the user page uses a built-in static demo router. When FastAPI is running on `http://127.0.0.1:8000`, the page calls the real `/route` API automatically.
+When FastAPI is not running, the user page still performs practical local actions:
+
+- `search`: opens real search result links.
+- `reminder`: generates a downloadable `.ics` calendar file.
+- `summarize`: creates a simple local extractive summary.
+- `rag_qa`: searches pasted/uploaded local text and returns evidence.
+
+When FastAPI is running on `http://127.0.0.1:8000`, the page calls the real `/execute` API automatically. If `DEEPSEEK_API_KEY` is set, summarize, RAG QA, translate, code, and chat use DeepSeek for stronger answers.
 
 ## Windows Setup
 
@@ -118,6 +126,18 @@ chcp 65001
 
 ## Start API
 
+Optional DeepSeek setup:
+
+```bat
+set DEEPSEEK_API_KEY=your_deepseek_api_key
+```
+
+PowerShell:
+
+```powershell
+$env:DEEPSEEK_API_KEY="your_deepseek_api_key"
+```
+
 ```bat
 uvicorn app.main:app --reload
 ```
@@ -155,6 +175,52 @@ http://127.0.0.1:8000/docs
   "text": "帮我查一下最近的 AI 新闻"
 }
 ```
+
+`POST /execute`
+
+```json
+{
+  "text": "根据资料回答 KMP 是什么",
+  "context": "KMP 是一种字符串匹配算法，它通过 next 数组减少重复比较。"
+}
+```
+
+Example response:
+
+```json
+{
+  "intent": "rag_qa",
+  "confidence": 0.94,
+  "route_to": "local_rag",
+  "reason": "用户需要基于本地资料或知识库进行问答。",
+  "status": "success",
+  "answer": "KMP 是一种字符串匹配算法...",
+  "actions": [],
+  "scores": {
+    "rag_qa": 0.94
+  }
+}
+```
+
+## What Happens After Intent Recognition
+
+The project now follows a complete Agent pipeline:
+
+```text
+user query -> intent classifier -> route selector -> tool executor -> final result
+```
+
+Execution behavior:
+
+| Intent | Executor Result |
+|---|---|
+| search | Generates real search links. |
+| reminder | Generates a downloadable calendar `.ics` file. |
+| summarize | Summarizes pasted text locally or through DeepSeek. |
+| rag_qa | Answers using pasted/uploaded local context, optionally through DeepSeek. |
+| translate | Uses DeepSeek when API key is configured. |
+| code | Uses DeepSeek for code explanation and repair when API key is configured. |
+| chat | Uses DeepSeek when API key is configured, otherwise returns a local assistant response. |
 
 Example response:
 

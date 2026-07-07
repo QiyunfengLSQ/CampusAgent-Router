@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -16,3 +16,13 @@ class PredictResponse(BaseModel):
 class RouteResponse(PredictResponse):
     route_to: str
     reason: str
+
+
+class ExecuteRequest(TextRequest):
+    context: Optional[str] = ""
+
+
+class ExecuteResponse(RouteResponse):
+    status: str
+    answer: str
+    actions: List[Dict[str, Any]]

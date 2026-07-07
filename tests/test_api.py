@@ -35,3 +35,14 @@ def test_route(monkeypatch):
     body = response.json()
     assert body["intent"] == "search"
     assert body["route_to"] == "web_search"
+
+
+def test_execute(monkeypatch):
+    monkeypatch.setattr(main, "predictor", FakePredictor())
+    client = TestClient(main.app)
+    response = client.post("/execute", json={"text": "帮我查新闻", "context": ""})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["intent"] == "search"
+    assert body["status"] == "success"
+    assert body["actions"]

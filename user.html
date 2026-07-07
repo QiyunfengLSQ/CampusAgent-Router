@@ -39,9 +39,17 @@
           <span id="modeBadge" class="status-badge">静态演示</span>
         </div>
 
-        <textarea id="queryInput" rows="5" placeholder="例如：帮我查一下最近的 AI 新闻">帮我查一下最近的 AI 新闻</textarea>
+        <textarea id="queryInput" rows="4" placeholder="例如：帮我查一下最近的 AI 新闻">帮我查一下最近的 AI 新闻</textarea>
+        <div class="context-tools">
+          <div>
+            <label for="contextInput">资料 / 正文 / 代码区</label>
+            <p>用于本地资料问答、总结、翻译和代码修复。也可以上传 txt 或 md 文件。</p>
+          </div>
+          <input id="fileInput" type="file" accept=".txt,.md,.csv,.json">
+        </div>
+        <textarea id="contextInput" rows="6" placeholder="可选：粘贴文章、笔记、PDF 复制文本、代码或报错信息。"></textarea>
         <div class="control-row">
-          <button id="routeBtn" class="primary-button">识别并路由</button>
+          <button id="routeBtn" class="primary-button">执行任务</button>
           <button id="clearBtn" class="secondary-button">清空</button>
         </div>
 
@@ -62,6 +70,14 @@
 
         <div class="reason-box" id="reasonText">用户需要获取实时外部信息。</div>
         <div id="scoreList" class="score-list"></div>
+        <section class="execution-panel">
+          <div class="execution-head">
+            <span>执行结果</span>
+            <b id="executionStatus">ready</b>
+          </div>
+          <div id="answerText" class="answer-box">点击“执行任务”后，这里会显示真实工具执行结果。</div>
+          <div id="actionList" class="action-list"></div>
+        </section>
       </section>
     </section>
   </main>

@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.executor import execute_tool
 from app.predictor import IntentPredictor
 from app.router import route_intent
-from app.schemas import PredictResponse, RouteResponse, TextRequest
+from app.schemas import ExecuteRequest, ExecuteResponse, PredictResponse, RouteResponse, TextRequest
 
 
 app = FastAPI(title="CampusAgent Router", description="AI Agent intent recognition and tool routing service")
@@ -38,3 +39,14 @@ def route(request: TextRequest):
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     route_info = route_intent(prediction["intent"])
     return {**prediction, **route_info}
+
+
+@app.post("/execute", response_model=ExecuteResponse)
+def execute(request: ExecuteRequest):
+    try:
+        prediction = predictor.predict(request.text)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    route_info = route_intent(prediction["intent"])
+    execution = execute_tool(prediction["intent"], request.text, request.context or "")
+    return {**prediction, **route_info, **execution}

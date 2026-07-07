@@ -21,14 +21,14 @@
     <section class="admin-layout">
       <div class="admin-head">
         <p class="eyebrow">Operations Dashboard</p>
-        <h1>模型、数据和路由能力概览</h1>
+        <h1>模型、数据、路由和执行能力概览</h1>
       </div>
 
       <section class="metric-grid">
         <div class="metric-card"><span>Intent Classes</span><strong>7</strong><p>search / rag_qa / summarize / code / reminder / translate / chat</p></div>
         <div class="metric-card"><span>Dataset</span><strong>1260</strong><p>自动生成中文意图样本</p></div>
-        <div class="metric-card"><span>Best Valid Acc</span><strong>1.00</strong><p>最近一次训练结果</p></div>
-        <div class="metric-card"><span>Device</span><strong>CUDA</strong><p>训练脚本自动检测 GPU / CPU</p></div>
+        <div class="metric-card"><span>Executor</span><strong>7</strong><p>搜索、提醒、总结、RAG、翻译、代码和聊天执行层</p></div>
+        <div class="metric-card"><span>LLM Mode</span><strong>Optional</strong><p>设置 DEEPSEEK_API_KEY 后启用高质量生成</p></div>
       </section>
 
       <section class="admin-grid">
@@ -43,6 +43,7 @@ python scripts\make_dataset.py
 python scripts\train_model.py
 python scripts\eval_model.py
 python scripts\predict_demo.py
+set DEEPSEEK_API_KEY=your_key
 uvicorn app.main:app --reload</code></pre>
         </div>
       </section>
