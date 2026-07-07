@@ -130,12 +130,16 @@ Optional DeepSeek setup:
 
 ```bat
 set DEEPSEEK_API_KEY=your_deepseek_api_key
+set DEEPSEEK_MODEL=deepseek-v4-flash
+set DEEPSEEK_THINKING=disabled
 ```
 
 PowerShell:
 
 ```powershell
 $env:DEEPSEEK_API_KEY="your_deepseek_api_key"
+$env:DEEPSEEK_MODEL="deepseek-v4-flash"
+$env:DEEPSEEK_THINKING="disabled"
 ```
 
 ```bat
@@ -221,6 +225,88 @@ Execution behavior:
 | translate | Uses DeepSeek when API key is configured. |
 | code | Uses DeepSeek for code explanation and repair when API key is configured. |
 | chat | Uses DeepSeek when API key is configured, otherwise returns a local assistant response. |
+
+## DeepSeek API Setup Guide
+
+1. Create a DeepSeek API key.
+
+   Open:
+
+   ```text
+   https://platform.deepseek.com/api_keys
+   ```
+
+   Sign in, create an API key, and copy it once. Treat it like a password.
+
+2. Never put the API key in frontend files.
+
+   Do not write your key into `index.html`, `user.html`, `web/app.js`, browser console code, GitHub Pages, or README. This project only reads the key from backend environment variables.
+
+3. Install dependencies.
+
+   ```bat
+   pip install -r requirements.txt
+   ```
+
+   `requirements.txt` intentionally does not include `torch`, `torchvision`, or `torchaudio`.
+
+4. Set the key in Windows cmd.
+
+   ```bat
+   set DEEPSEEK_API_KEY=sk-your-key-here
+   set DEEPSEEK_MODEL=deepseek-v4-flash
+   set DEEPSEEK_THINKING=disabled
+   uvicorn app.main:app --reload
+   ```
+
+5. Or set the key in PowerShell.
+
+   ```powershell
+   $env:DEEPSEEK_API_KEY="sk-your-key-here"
+   $env:DEEPSEEK_MODEL="deepseek-v4-flash"
+   $env:DEEPSEEK_THINKING="disabled"
+   uvicorn app.main:app --reload
+   ```
+
+6. Open the user page.
+
+   Open `user.html` directly or open the GitHub Pages URL. When the backend is running at `http://127.0.0.1:8000`, the page calls `/execute` automatically.
+
+7. Try tasks that need DeepSeek.
+
+   ```text
+   把这句话翻译成英文：我正在做一个 Agent 路由项目
+   ```
+
+   ```text
+   解释这段 Python 代码为什么报错
+   ```
+
+   ```text
+   根据资料回答 KMP 是什么
+   ```
+
+8. Test the API directly.
+
+   Windows cmd:
+
+   ```bat
+   curl -X POST http://127.0.0.1:8000/execute ^
+     -H "Content-Type: application/json" ^
+     -d "{\"text\":\"把这句话翻译成英文：我正在做一个 Agent 路由项目\",\"context\":\"\"}"
+   ```
+
+9. Optional model choices.
+
+   - `deepseek-v4-flash`: recommended default for fast execution.
+   - `deepseek-v4-pro`: stronger model for higher quality answers.
+
+10. Common issues.
+
+   - If the page shows `静态演示`, the FastAPI backend is not reachable.
+   - If translate/code/chat returns a fallback message, check `DEEPSEEK_API_KEY`.
+   - If GitHub Pages is open but local API is not running, only static local tools can work.
+   - If PowerShell shows garbled Chinese, run `chcp 65001` in cmd or use UTF-8 terminal settings.
 
 Example response:
 

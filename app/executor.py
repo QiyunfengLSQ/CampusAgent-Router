@@ -7,7 +7,8 @@ from datetime import datetime, timedelta
 
 
 DEEPSEEK_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com/chat/completions")
-DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
+DEEPSEEK_THINKING = os.getenv("DEEPSEEK_THINKING", "disabled")
 
 
 def clean_query(text):
@@ -123,6 +124,7 @@ def call_deepseek(system_prompt, user_prompt):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            "thinking": {"type": DEEPSEEK_THINKING},
             "temperature": 0.2,
         }
         request = urllib.request.Request(
