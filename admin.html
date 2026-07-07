@@ -21,38 +21,40 @@
 
     <section class="admin-layout">
       <div class="admin-head">
-        <p class="eyebrow">Operations Dashboard</p>
-        <h1>模型、数据、路由和执行能力概览</h1>
+        <p class="eyebrow">管理面板</p>
+        <h1>运行情况和任务分配规则</h1>
       </div>
 
       <section class="metric-grid">
-        <div class="metric-card"><span>Intent Classes</span><strong>7</strong><p>search / rag_qa / summarize / code / reminder / translate / chat</p></div>
-        <div class="metric-card"><span>Dataset</span><strong>1260</strong><p>自动生成中文意图样本</p></div>
-        <div class="metric-card"><span>Runs Today</span><strong id="runCount">0</strong><p>来自用户端的本地实时执行记录</p></div>
-        <div class="metric-card"><span>Latest Intent</span><strong id="latestIntent">-</strong><p id="latestRoute">等待用户端执行任务</p></div>
+        <div class="metric-card"><span>任务类型</span><strong>7</strong><p>搜索、资料问答、总结、代码、提醒、翻译、聊天</p></div>
+        <div class="metric-card"><span>示例数据</span><strong>1260</strong><p>用于训练判断任务类型的中文样本</p></div>
+        <div class="metric-card"><span>执行次数</span><strong id="runCount">0</strong><p>本浏览器记录的使用次数，不代表额度消耗</p></div>
+        <div class="metric-card"><span>最近任务</span><strong id="latestIntent">-</strong><p id="latestRoute">等待用户端执行任务</p></div>
       </section>
 
       <section class="admin-grid monitor-grid">
         <div class="ops-panel">
           <div class="ops-head">
-            <h2>实时路由监控</h2>
+            <h2>运行监控</h2>
             <button id="clearMonitorBtn" class="secondary-button compact">清空记录</button>
           </div>
           <div class="monitor-current">
             <span>最近请求</span>
             <strong id="latestQuery">暂无数据</strong>
           </div>
+          <p class="monitor-note">下方条形图表示最近一次任务判断的模型置信度分布，不是使用频率，也不是额度消耗。</p>
           <div id="scoreList" class="score-list admin-score-list"></div>
         </div>
         <div class="ops-panel">
           <h2>执行记录</h2>
+          <p class="monitor-note">记录里的“模型置信度”表示系统判断任务类型的把握程度。</p>
           <div id="eventLog" class="event-log"></div>
         </div>
       </section>
 
       <section class="admin-grid">
         <div class="ops-panel">
-          <h2>工具路由表</h2>
+          <h2>任务分配规则</h2>
           <div id="routeTable" class="route-table"></div>
         </div>
         <div class="ops-panel">
@@ -62,7 +64,7 @@ python scripts\make_dataset.py
 python scripts\train_model.py
 python scripts\eval_model.py
 python scripts\predict_demo.py
-set DEEPSEEK_API_KEY=your_key
+set DEEPSEEK_API_KEY=你的key
 uvicorn app.main:app --reload</code></pre>
         </div>
       </section>

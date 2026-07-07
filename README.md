@@ -1,359 +1,122 @@
 # CampusAgent Router
 
-CampusAgent Router is a lightweight AI Agent intent recognition and tool routing project. It classifies user requests into seven intents and recommends the next tool for an Agent workflow.
+一个面向学习、办公和日常助手场景的小工具。用户输入一句话后，系统会判断这是搜索、总结、翻译、提醒、代码处理、资料问答还是普通聊天，并把任务交给对应的功能执行。
 
-The repository also includes a static technology-style web interface that can be opened directly or deployed with GitHub Pages.
+静态网页可以直接打开；如果启动本地后端并配置 DeepSeek API，翻译、总结、代码处理和问答会得到更好的生成结果。
 
-## Features
+## 能做什么
 
-- Chinese intent dataset generation.
-- Tiny PyTorch Transformer classifier without HuggingFace or pretrained models.
-- Training, evaluation, metrics export, and badcase report.
-- FastAPI inference service with `/health`, `/predict`, and `/route`.
-- FastAPI execution service with `/execute`.
-- Static web UI with separated user and admin pages.
-- User page supports local static execution and optional FastAPI + DeepSeek live mode.
-- Admin page shows dataset, model, route table, live route telemetry, and run commands.
-- User-facing model scores are hidden; live confidence and score vectors are monitored in the admin page.
-
-## Intent And Route Mapping
-
-| Intent | Route |
+| 用户想做的事 | 项目会做什么 |
 |---|---|
-| search | web_search |
-| rag_qa | local_rag |
-| summarize | text_summarizer |
-| code | code_assistant |
-| reminder | calendar_reminder |
-| translate | translator |
-| chat | general_chat |
+| 查资料、查新闻 | 生成可点击的搜索入口 |
+| 设置提醒 | 生成可下载的 `.ics` 日历文件 |
+| 总结文章 | 对粘贴的正文做摘要 |
+| 根据资料回答问题 | 从粘贴或上传的文本中找依据并回答 |
+| 翻译成指定语言 | 接入 DeepSeek 后按目标语言翻译 |
+| 解释或修复代码 | 接入 DeepSeek 后给出代码建议 |
+| 普通聊天 | 接入 DeepSeek 后进行对话 |
 
-## Project Structure
+## 页面说明
+
+- `index.html`：项目首页。
+- `user.html`：用户端，输入需求并执行任务。
+- `admin.html`：管理端，查看执行记录、任务分配规则和模型置信度。
+
+用户端不展示复杂的模型分数，只展示任务类型、执行工具和结果。管理端里的数字含义如下：
+
+- `执行次数`：当前浏览器记录的使用次数。
+- `模型置信度`：系统判断某个任务类型的把握程度。
+- 这些数字不是额度消耗，也不是费用。
+
+## 直接打开网页
+
+双击打开：
 
 ```text
-app/
-  main.py
-  predictor.py
-  router.py
-  schemas.py
-tinyintent/
-  dataset.py
-  evaluate.py
-  model.py
-  tokenizer.py
-  train.py
-  utils.py
-scripts/
-  make_dataset.py
-  train_model.py
-  eval_model.py
-  predict_demo.py
-tests/
-web/
-  app.js
-  styles.css
 index.html
-user.html
-admin.html
 ```
 
-## Web UI
+或者访问 GitHub Pages：
 
-Open these files directly in a browser:
+```text
+https://qiyunfenglsq.github.io/CampusAgent-Router/
+```
 
-- `index.html`: project entrance.
-- `user.html`: user-side execution console.
-- `admin.html`: admin dashboard with live route telemetry.
+不启动后端时，网页仍然可以完成搜索入口、日历提醒、本地摘要和简单资料检索。
 
-When FastAPI is not running, the user page still performs practical local actions:
+## 本地运行后端
 
-- `search`: opens real search result links.
-- `reminder`: generates a downloadable `.ics` calendar file.
-- `summarize`: creates a simple local extractive summary.
-- `rag_qa`: searches pasted/uploaded local text and returns evidence.
-
-When FastAPI is running on `http://127.0.0.1:8000`, the page calls the real `/execute` API automatically. If `DEEPSEEK_API_KEY` is set, summarize, RAG QA, translate, code, and chat use DeepSeek for stronger answers.
-
-The user page only shows task type, target tool, and execution result. Detailed confidence scores and recent execution records are written to browser local storage and displayed in `admin.html`.
-
-## Windows Setup
-
-Torch is intentionally not listed in `requirements.txt`. Install your CUDA PyTorch build separately first.
+安装小依赖：
 
 ```bat
 pip install -r requirements.txt
 ```
 
-Check CUDA:
+注意：`requirements.txt` 不包含 `torch`、`torchvision`、`torchaudio`，PyTorch 需要你按自己的 CUDA 环境单独安装。
 
-```bat
-python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu')"
-```
-
-## Generate Dataset
+生成数据、训练和评估：
 
 ```bat
 python scripts\make_dataset.py
-```
-
-## Train
-
-```bat
 python scripts\train_model.py
-```
-
-Training logs include device, epoch, train loss, train accuracy, validation loss, and validation accuracy. The best model is saved to `artifacts\model.pt`.
-
-## Evaluate
-
-```bat
 python scripts\eval_model.py
 ```
 
-Evaluation writes:
-
-- `artifacts\metrics.json`
-- `reports\badcases.md`
-
-## Prediction Demo
-
-```bat
-python scripts\predict_demo.py
-```
-
-If Chinese output looks garbled in PowerShell, run:
-
-```bat
-chcp 65001
-```
-
-## Start API
-
-Optional DeepSeek setup:
-
-```bat
-set DEEPSEEK_API_KEY=your_deepseek_api_key
-set DEEPSEEK_MODEL=deepseek-v4-flash
-set DEEPSEEK_THINKING=disabled
-```
-
-PowerShell:
-
-```powershell
-$env:DEEPSEEK_API_KEY="your_deepseek_api_key"
-$env:DEEPSEEK_MODEL="deepseek-v4-flash"
-$env:DEEPSEEK_THINKING="disabled"
-```
+启动接口：
 
 ```bat
 uvicorn app.main:app --reload
 ```
 
-Open:
+接口文档：
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-## API Examples
+## 接入 DeepSeek
 
-`GET /health`
-
-```json
-{
-  "status": "ok",
-  "device": "cuda",
-  "model_loaded": true
-}
-```
-
-`POST /predict`
-
-```json
-{
-  "text": "帮我总结一下这篇文章"
-}
-```
-
-`POST /route`
-
-```json
-{
-  "text": "帮我查一下最近的 AI 新闻"
-}
-```
-
-`POST /execute`
-
-```json
-{
-  "text": "根据资料回答 KMP 是什么",
-  "context": "KMP 是一种字符串匹配算法，它通过 next 数组减少重复比较。"
-}
-```
-
-Example response:
-
-```json
-{
-  "intent": "rag_qa",
-  "confidence": 0.94,
-  "route_to": "local_rag",
-  "reason": "用户需要基于本地资料或知识库进行问答。",
-  "status": "success",
-  "answer": "KMP 是一种字符串匹配算法...",
-  "actions": [],
-  "scores": {
-    "rag_qa": 0.94
-  }
-}
-```
-
-## What Happens After Intent Recognition
-
-The project now follows a complete Agent pipeline:
+1. 到 DeepSeek 平台创建 API Key：
 
 ```text
-user query -> intent classifier -> route selector -> tool executor -> final result
+https://platform.deepseek.com/api_keys
 ```
 
-Execution behavior:
+2. 在 Windows cmd 中设置：
 
-| Intent | Executor Result |
-|---|---|
-| search | Generates real search links. |
-| reminder | Generates a downloadable calendar `.ics` file. |
-| summarize | Summarizes pasted text locally or through DeepSeek. |
-| rag_qa | Answers using pasted/uploaded local context, optionally through DeepSeek. |
-| translate | Uses DeepSeek when API key is configured. |
-| code | Uses DeepSeek for code explanation and repair when API key is configured. |
-| chat | Uses DeepSeek when API key is configured, otherwise returns a local assistant response. |
-
-## DeepSeek API Setup Guide
-
-1. Create a DeepSeek API key.
-
-   Open:
-
-   ```text
-   https://platform.deepseek.com/api_keys
-   ```
-
-   Sign in, create an API key, and copy it once. Treat it like a password.
-
-2. Never put the API key in frontend files.
-
-   Do not write your key into `index.html`, `user.html`, `web/app.js`, browser console code, GitHub Pages, or README. This project only reads the key from backend environment variables.
-
-3. Install dependencies.
-
-   ```bat
-   pip install -r requirements.txt
-   ```
-
-   `requirements.txt` intentionally does not include `torch`, `torchvision`, or `torchaudio`.
-
-4. Set the key in Windows cmd.
-
-   ```bat
-   set DEEPSEEK_API_KEY=sk-your-key-here
-   set DEEPSEEK_MODEL=deepseek-v4-flash
-   set DEEPSEEK_THINKING=disabled
-   uvicorn app.main:app --reload
-   ```
-
-5. Or set the key in PowerShell.
-
-   ```powershell
-   $env:DEEPSEEK_API_KEY="sk-your-key-here"
-   $env:DEEPSEEK_MODEL="deepseek-v4-flash"
-   $env:DEEPSEEK_THINKING="disabled"
-   uvicorn app.main:app --reload
-   ```
-
-6. Open the user page.
-
-   Open `user.html` directly or open the GitHub Pages URL. When the backend is running at `http://127.0.0.1:8000`, the page calls `/execute` automatically.
-
-7. Try tasks that need DeepSeek.
-
-   ```text
-   把这句话翻译成英文：我正在做一个 Agent 路由项目
-   ```
-
-   ```text
-   解释这段 Python 代码为什么报错
-   ```
-
-   ```text
-   根据资料回答 KMP 是什么
-   ```
-
-8. Test the API directly.
-
-   Windows cmd:
-
-   ```bat
-   curl -X POST http://127.0.0.1:8000/execute ^
-     -H "Content-Type: application/json" ^
-     -d "{\"text\":\"把这句话翻译成英文：我正在做一个 Agent 路由项目\",\"context\":\"\"}"
-   ```
-
-9. Optional model choices.
-
-   - `deepseek-v4-flash`: recommended default for fast execution.
-   - `deepseek-v4-pro`: stronger model for higher quality answers.
-
-10. Common issues.
-
-   - If the page shows `静态演示`, the FastAPI backend is not reachable.
-   - If translate/code/chat returns a fallback message, check `DEEPSEEK_API_KEY`.
-   - If GitHub Pages is open but local API is not running, only static local tools can work.
-   - If PowerShell shows garbled Chinese, run `chcp 65001` in cmd or use UTF-8 terminal settings.
-
-Example response:
-
-```json
-{
-  "intent": "search",
-  "confidence": 0.96,
-  "route_to": "web_search",
-  "reason": "用户需要获取实时外部信息。",
-  "scores": {
-    "search": 0.96,
-    "rag_qa": 0.01
-  }
-}
+```bat
+set DEEPSEEK_API_KEY=你的key
+set DEEPSEEK_MODEL=deepseek-v4-flash
+set DEEPSEEK_THINKING=disabled
+uvicorn app.main:app --reload
 ```
 
-## Test
+PowerShell：
+
+```powershell
+$env:DEEPSEEK_API_KEY="你的key"
+$env:DEEPSEEK_MODEL="deepseek-v4-flash"
+$env:DEEPSEEK_THINKING="disabled"
+uvicorn app.main:app --reload
+```
+
+不要把 DeepSeek 密钥写进网页、GitHub、README 或 `web/app.js`。密钥只应该放在本地后端环境变量里。
+
+## 测试
 
 ```bat
 python -m pytest
 ```
 
-## Deploy With GitHub Pages
-
-This project already has a static entry file at `index.html`, so GitHub Pages can serve it directly from the repository root.
-
-Recommended repository description:
+## 项目结构
 
 ```text
-Lightweight AI Agent intent recognition and tool routing system with a static web UI.
+app/          FastAPI 后端
+tinyintent/   训练和推理代码
+scripts/      数据生成、训练、评估和 demo
+tests/        测试
+web/          静态页面资源
+index.html    首页
+user.html     用户端
+admin.html    管理端
 ```
-
-After pushing to GitHub, enable Pages:
-
-1. Open repository settings.
-2. Go to Pages.
-3. Choose `Deploy from a branch`.
-4. Select branch `main` and folder `/root`.
-5. Save and wait for the Pages URL.
-
-## Notes
-
-- No Docker.
-- No HuggingFace dependency.
-- No pretrained model download.
-- No `torch`, `torchvision`, or `torchaudio` in `requirements.txt`.
-- The static UI can be opened without starting a server.

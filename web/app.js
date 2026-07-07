@@ -8,6 +8,26 @@ const routeMap = {
   chat: ["general_chat", "用户正在进行开放式闲聊或情绪交流。"]
 };
 
+const intentNames = {
+  search: "搜索资料",
+  rag_qa: "资料问答",
+  summarize: "文本总结",
+  code: "代码处理",
+  reminder: "提醒日程",
+  translate: "翻译改写",
+  chat: "普通聊天"
+};
+
+const toolNames = {
+  web_search: "打开搜索入口",
+  local_rag: "本地资料问答",
+  text_summarizer: "文本总结工具",
+  code_assistant: "代码助手",
+  calendar_reminder: "日历提醒",
+  translator: "翻译工具",
+  general_chat: "普通对话"
+};
+
 const keywordRules = [
   ["search", ["查", "搜索", "最近", "最新", "新闻", "天气", "进展"]],
   ["rag_qa", ["上传", "资料", "笔记", "知识库", "本地", "根据"]],
@@ -20,6 +40,14 @@ const keywordRules = [
 
 const telemetryKey = "campusagent_router_events";
 const maxTelemetryItems = 40;
+
+function displayIntent(intent) {
+  return intentNames[intent] || intent;
+}
+
+function displayTool(tool) {
+  return toolNames[tool] || tool;
+}
 
 function normalizeScores(scores) {
   return Object.fromEntries(Object.entries(scores).map(([key, value]) => [key, Number(value)]));
@@ -169,7 +197,7 @@ function executeLocal(route, text, context) {
     return { ...route, status: "success", answer: localRagAnswer(text, context), actions: [] };
   }
   if (route.intent === "translate") {
-    return { ...route, status: "needs_api", answer: "翻译执行需要后端 DeepSeek。请启动 FastAPI 并设置 DEEPSEEK_API_KEY，静态页面不会保存或暴露 API Key。", actions: [] };
+    return { ...route, status: "needs_api", answer: "翻译到对应语言需要后端 DeepSeek。请在输入中说明目标语言，例如“翻译成中文/英文/日语”，并启动 FastAPI 设置 DEEPSEEK_API_KEY。", actions: [] };
   }
   if (route.intent === "code") {
     return { ...route, status: "needs_api", answer: "代码解释和修复需要后端 DeepSeek。请在资料区粘贴代码/报错，并启动带 API Key 的 FastAPI 服务。", actions: [] };
@@ -186,13 +214,13 @@ async function executeTask(text, context) {
     });
     if (!response.ok) throw new Error("api unavailable");
     const badge = document.querySelector("#modeBadge");
-    if (badge) badge.textContent = "API 在线";
+    if (badge) badge.textContent = "后端在线";
     const result = await response.json();
     result.scores = normalizeScores(result.scores);
     return result;
   } catch {
     const badge = document.querySelector("#modeBadge");
-    if (badge) badge.textContent = "静态演示";
+    if (badge) badge.textContent = "本地模式";
     return executeLocal(fallbackRoute(text), text, context);
   }
 }
@@ -205,7 +233,7 @@ function renderScores(scores) {
     const row = document.createElement("div");
     row.className = "score-row";
     row.innerHTML = `
-      <span>${label}</span>
+      <span>${displayIntent(label)}</span>
       <div class="score-bar"><span style="width:${Math.round(value * 100)}%"></span></div>
       <b>${Number(value).toFixed(2)}</b>
     `;
@@ -233,6 +261,8 @@ function recordTelemetry(result, text) {
     text,
     intent: result.intent,
     route_to: result.route_to,
+    intent_name: displayIntent(result.intent),
+    tool_name: displayTool(result.route_to),
     confidence: Number(result.confidence) || 0,
     status: result.status || "success",
     scores: result.scores || {}
@@ -279,13 +309,22 @@ async function runUserRoute() {
   const text = input.value.trim();
   if (!text) return;
   const result = await executeTask(text, context ? context.value : "");
-  document.querySelector("#intentText").textContent = result.intent;
-  document.querySelector("#routeText").textContent = result.route_to;
+  document.querySelector("#intentText").textContent = displayIntent(result.intent);
+  document.querySelector("#routeText").textContent = displayTool(result.route_to);
   document.querySelector("#reasonText").textContent = result.reason;
   document.querySelector("#executionStatus").textContent = result.status;
   document.querySelector("#answerText").textContent = result.answer;
   recordTelemetry(result, text);
   renderActions(result.actions || []);
+}
+
+function setPendingPreview() {
+  document.querySelector("#intentText").textContent = "待判断";
+  document.querySelector("#routeText").textContent = "待选择";
+  document.querySelector("#reasonText").textContent = "点击“执行任务”后，系统会识别意图、路由工具并返回执行结果。";
+  document.querySelector("#executionStatus").textContent = "ready";
+  document.querySelector("#answerText").textContent = "选择快捷场景或输入需求后，点击“执行任务”。";
+  renderActions([]);
 }
 
 function setupUserPage() {
@@ -311,9 +350,10 @@ function setupUserPage() {
       document.querySelectorAll(".sample").forEach((item) => item.classList.remove("active"));
       button.classList.add("active");
       input.value = button.dataset.text;
-      runUserRoute();
+      setPendingPreview();
     });
   });
+  setPendingPreview();
 }
 
 function setupAdminPage() {
@@ -322,8 +362,8 @@ function setupAdminPage() {
   table.innerHTML = Object.entries(routeMap)
     .map(([intent, [tool, reason]]) => `
       <div class="route-item">
-        <b>${intent}</b>
-        <span>${tool} · ${reason}</span>
+        <b>${displayIntent(intent)}</b>
+        <span>${displayTool(tool)} · ${reason}</span>
       </div>
     `)
     .join("");
@@ -342,7 +382,7 @@ function renderEventLog(items) {
     .map((item) => `
       <div class="event-item">
         <span>${item.time} · ${item.status}</span>
-        <p><b>${item.intent}</b> -> ${item.route_to} · confidence ${Number(item.confidence).toFixed(2)}</p>
+        <p><b>${item.intent_name || displayIntent(item.intent)}</b> 交给 ${item.tool_name || displayTool(item.route_to)} · 模型置信度 ${Number(item.confidence).toFixed(2)}</p>
         <p>${item.text}</p>
       </div>
     `)
@@ -357,8 +397,8 @@ function renderAdminMonitor() {
   const latestRoute = document.querySelector("#latestRoute");
   const latestQuery = document.querySelector("#latestQuery");
   if (count) count.textContent = String(items.length);
-  if (latestIntent) latestIntent.textContent = latest ? latest.intent : "-";
-  if (latestRoute) latestRoute.textContent = latest ? latest.route_to : "等待用户端执行任务";
+  if (latestIntent) latestIntent.textContent = latest ? (latest.intent_name || displayIntent(latest.intent)) : "-";
+  if (latestRoute) latestRoute.textContent = latest ? (latest.tool_name || displayTool(latest.route_to)) : "等待用户端执行任务";
   if (latestQuery) latestQuery.textContent = latest ? latest.text : "暂无数据";
   renderScores(latest ? latest.scores : {});
   renderEventLog(items);

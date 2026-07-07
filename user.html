@@ -27,28 +27,28 @@
         <button class="sample" data-text="帮我总结一下这篇文章">文本总结</button>
         <button class="sample" data-text="修复这个 Python 报错">代码助手</button>
         <button class="sample" data-text="明天早上八点提醒我背单词">提醒日程</button>
-        <button class="sample" data-text="把这句话翻译成英文">翻译改写</button>
+        <button class="sample" data-text="把这句话翻译成对应语言：I'm coming.">翻译改写</button>
         <button class="sample" data-text="陪我聊一会儿">普通聊天</button>
       </aside>
 
       <section class="console-panel">
         <div class="panel-head">
           <div>
-            <p class="eyebrow">Router Console</p>
-            <h1>输入一句话，获得意图和工具路由</h1>
+            <p class="eyebrow">任务处理</p>
+            <h1>输入需求，直接执行</h1>
           </div>
-          <span id="modeBadge" class="status-badge">静态演示</span>
+          <span id="modeBadge" class="status-badge">本地模式</span>
         </div>
 
         <textarea id="queryInput" rows="4" placeholder="例如：帮我查一下最近的 AI 新闻">帮我查一下最近的 AI 新闻</textarea>
         <div class="context-tools">
           <div>
             <label for="contextInput">资料 / 正文 / 代码区</label>
-            <p>用于本地资料问答、总结、翻译和代码修复。也可以上传 txt 或 md 文件。</p>
+            <p>用于本地资料问答、总结、翻译到对应语言和代码修复。也可以上传 txt 或 md 文件。</p>
           </div>
           <input id="fileInput" type="file" accept=".txt,.md,.csv,.json">
         </div>
-        <textarea id="contextInput" rows="6" placeholder="可选：粘贴文章、笔记、PDF 复制文本、代码或报错信息。"></textarea>
+        <textarea id="contextInput" rows="6" placeholder="可选：粘贴文章、笔记、PDF 复制文本、代码、报错信息或要翻译的正文。"></textarea>
         <div class="control-row">
           <button id="routeBtn" class="primary-button">执行任务</button>
           <button id="clearBtn" class="secondary-button">清空</button>
@@ -56,12 +56,12 @@
 
         <div class="result-grid">
           <div class="result-main">
-            <span>Intent</span>
-            <strong id="intentText">search</strong>
+            <span>任务类型</span>
+            <strong id="intentText">待判断</strong>
           </div>
           <div class="result-main">
-            <span>Route To</span>
-            <strong id="routeText">web_search</strong>
+            <span>执行工具</span>
+            <strong id="routeText">待选择</strong>
           </div>
         </div>
 

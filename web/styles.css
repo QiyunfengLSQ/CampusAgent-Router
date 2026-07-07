@@ -553,6 +553,13 @@ textarea:focus {
   overflow-wrap: anywhere;
 }
 
+.monitor-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
 .event-log {
   display: grid;
   gap: 10px;
